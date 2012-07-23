@@ -8,7 +8,7 @@ Set KTAPIKey and KTMode (production/test) in Info.plist.
 Call API methods on the AS3 Kontagent class:
 
         // Methods
-        Kontagent.init(key, userId, params = null)
+        Kontagent.init(key, userId, testServer = false)
         Kontagent.trackEvent(name, params = null)
         Kontagent.trackApplicationAdded(params = null)
         Kontagent.trackGoalCount(params = null)
@@ -36,8 +36,9 @@ Call API methods on the AS3 Kontagent class:
 
 Mobile notes
 ============
-init() and trackApplicationAdded() are ignored in mobile.
-Both are called automatically during app startup.
+A null user may be given to init(). Kontagent will use a randomly-generated
+userId in all requests, or a previously non-null user if one was ever provided
+to Kontagent in previous runs of the application.
 
 Web notes
 =========

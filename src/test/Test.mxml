@@ -88,7 +88,7 @@
 
       <s:HGroup width="80%" verticalAlign="middle">
         <s:Button label="nei" click="Kontagent.trackNotificationEmailResponse(tag())"/>
-        <s:Button label="cpu" click="Kontagent.trackUserInformation()"/>
+        <s:Button label="cpu" click="Kontagent.trackUserInformation({birthYear: 1973, friendCount: 1 })"/>
         <s:Button label="dev" click="Kontagent.sendDeviceInformation()"/>
         <s:Button label="sid" click="log(Kontagent.userId)"/>
         <s:Button label="dbg" click="toggleDebug()"/>

@@ -29,6 +29,7 @@
         <key>UIApplicationExitsOnSuspend</key><true/>
         <key>UIPrerenderedIcon</key><true/>
         <key>ANEDebug</key><true/>
+        <key>KTDebug</key><true/>
         <!--key>KTAPIKey</key><string>@KONTAGENT_API_KEY@</string>
         <key>KTMode</key><string>@KONTAGENT_MODE@</string-->
       ]]>

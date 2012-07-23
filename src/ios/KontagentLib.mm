@@ -11,13 +11,14 @@
 @interface KontagentLib : NativeLibrary {
 @private
   BOOL sessionStarted;
+  NSString *apiKey;
 }
 
 @end
 
-@interface ASObject (KTAdditions)
+@interface KTParamMap (NLAdditions)
 
-- (KTParamMap *)ktParamMapWithKeys:(NSArray *)keys;
++ (KTParamMap *)ktParamMapFromDictionary:(NSDictionary *)dict;
 
 @end
 
@@ -26,21 +27,21 @@
 FN_BEGIN(KontagentLib)
   FN(libraryVersion, libraryVersion)
   FN(initialize, initializeWithApiKey:userId:useTestServer:)
-  FN(trackApplicationAdded, applicationAdded:optionalParamsKeys:)
-  FN(trackEvent, customEvent:optionalParams:optionalParamsKeys:)
+  FN(trackApplicationAdded, applicationAdded:)
+  FN(trackEvent, customEvent:optionalParams:)
   FN(trackGoalCount, goalCount:value:)
-  FN(trackInviteSent, inviteSent:trackingId:optionalParams:optionalParamsKeys:)
-  FN(trackInviteResponse, inviteResponse:trackingId:optionalParams:optionalParamsKeys:)
-  FN(trackPageRequest, pageRequest:optionalParamsKeys:)
-  FN(trackRevenue, revenueTracking:optionalParams:optionalParamsKeys:)
-  FN(trackStreamPost, streamPost:trackingId:optionalParams:optionalParamsKeys:)
-  FN(trackStreamPostResponse, streamPostResponse:type:trackingId:optionalParams:optionalParamsKeys:)
-  FN(trackThirdPartyCommClick, undirectedCommunicationClick:type:optionalParams:optionalParamsKeys:)
-  FN(trackThirdPartyCommClickTag, undirectedCommunicationClick:type:trackingTag:optionalParams:optionalParamsKeys:)
-  FN(trackNotificationEmailSent, emailSent:trackingId:optionalParams:optionalParamsKeys:)
-  FN(trackNotificationEmailResponse, emailResponse:trackingId:optionalParams:optionalParamsKeys:)
-  FN(trackUserInformation, userInformation:optionalParamsKeys:)
-  FN(sendDeviceInformation, sendDeviceInformation:optionalParamsKeys:)
+  FN(trackInviteSent, inviteSent:trackingId:optionalParams:)
+  FN(trackInviteResponse, inviteResponse:trackingId:optionalParams:)
+  FN(trackPageRequest, pageRequest:)
+  FN(trackRevenue, revenueTracking:optionalParams:)
+  FN(trackStreamPost, streamPost:trackingId:optionalParams:)
+  FN(trackStreamPostResponse, streamPostResponse:type:trackingId:optionalParams:)
+  FN(trackThirdPartyCommClick, undirectedCommunicationClick:type:optionalParams:)
+  FN(trackThirdPartyCommClickTag, undirectedCommunicationClick:type:trackingTag:optionalParams:)
+  FN(trackNotificationEmailSent, emailSent:trackingId:optionalParams:)
+  FN(trackNotificationEmailResponse, emailResponse:trackingId:optionalParams:)
+  FN(trackUserInformation, userInformation:)
+  FN(sendDeviceInformation, sendDeviceInformation:)
   FN(genUniqueTrackingTag, generateUniqueTrackingTag)
   FN(enableDebug, enableDebug)
   FN(disableDebug, disableDebug)
@@ -48,102 +49,109 @@ FN_BEGIN(KontagentLib)
   FN(senderId, senderId)
 FN_END
 
+- (void)dealloc {
+  [apiKey release];
+  [super dealloc];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   NSBundle *bundle = [NSBundle mainBundle];
-  NSString *apiKey = [bundle objectForInfoDictionaryKey:@"KTAPIKey"];
-  NSString *mode = [bundle objectForInfoDictionaryKey:@"KTMode"];
-  if (apiKey || mode) {
-    NSAssert(apiKey, @"Missing Kontagent API Key");
-    NSAssert(mode, @"Missing Kontagent Mode (production/test)");
-    BOOL isProduction = [mode caseInsensitiveCompare:@"production"] == NSOrderedSame;
-    BOOL isTest = [mode caseInsensitiveCompare:@"test"] == NSOrderedSame;
-    NSAssert1(isProduction || isTest, @"Invalid Kontagent Mode '%@'", mode);
-    ANELog(@"Auto-initializing Kontagent(%@,%@)", apiKey, mode);
+  apiKey = [[bundle objectForInfoDictionaryKey:@"KTAPIKey"] copy];
+  if (apiKey) {
+    BOOL isTest = [[bundle objectForInfoDictionaryKey:@"KTTestMode"] boolValue];
+    ANELog(@"Auto-initializing Kontagent(%@,%@)", apiKey, isTest ? @"Test" : @"Production");
     [Kontagent startSession:apiKey
                    senderId:nil
-                       mode:isProduction ? kKontagentSDKMode_PRODUCTION : kKontagentSDKMode_TEST
+                       mode:isTest ? kKontagentSDKMode_TEST : kKontagentSDKMode_PRODUCTION
 shouldSendApplicationAddedAutomatically:YES];
-    sessionStarted = YES;
   }
+  if ([[bundle objectForInfoDictionaryKey:@"KTDebug"] boolValue])
+    [Kontagent enableDebug];
   return YES;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-  if (sessionStarted) {
+  if (apiKey) {
     [Kontagent stopSession];
-    sessionStarted = NO;
+    [apiKey release];
+    apiKey = nil;
   }
 }
 
-- (void)initializeWithApiKey:(NSString *)apiKey userId:(NSString *)userId useTestServer:(BOOL)useTestServer {
+- (void)initializeWithApiKey:(NSString *)apiKey_ userId:(NSString *)userId useTestServer:(BOOL)useTestServer {
+  if (apiKey) {
+    //  Ignoring as this will crash Kontagent 1.2.1 after 30s
+    NSLog(@"KontagentLib: Session already initialized. Ignoring.");
+    return;
+  }
   NSUInteger mode = useTestServer ? kKontagentSDKMode_TEST : kKontagentSDKMode_PRODUCTION;
+  apiKey = [apiKey_ copy];
   [Kontagent startSession:apiKey senderId:userId mode:mode shouldSendApplicationAddedAutomatically:NO];
-  sessionStarted = YES;
 }
 
 - (NSString *)libraryVersion {
   return [Kontagent libraryVersion];
 }
 
-- (void)applicationAdded:(ASObject *)params optionalParamsKeys:(NSArray *)keys {
-  [Kontagent applicationAdded:[params ktParamMapWithKeys:keys]];
+- (void)applicationAdded:(NSDictionary *)params {
+  [Kontagent applicationAdded:[KTParamMap ktParamMapFromDictionary:params]];
 }
 
-- (void)customEvent:(NSString *)event optionalParams:(ASObject *)params optionalParamsKeys:(NSArray *)keys {
-  [Kontagent customEvent:event optionalParams:[params ktParamMapWithKeys:keys]];
+- (void)customEvent:(NSString *)event optionalParams:(NSDictionary *)params {
+  [Kontagent customEvent:event optionalParams:[KTParamMap ktParamMapFromDictionary:params]];
 }
 
 - (void)goalCount:(NSInteger)aGoalCountId value:(NSInteger)aValue {
   [Kontagent goalCount:aGoalCountId value:aValue];
 }
 
-- (void)inviteSent:(NSString*)aRecipientUIDs trackingId:(NSString*)anUniqueTrackingTag optionalParams:(ASObject*)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent inviteSent:aRecipientUIDs trackingId:anUniqueTrackingTag optionalParams:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)inviteSent:(NSString*)aRecipientUIDs trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary*)anOptionalParams {
+  [Kontagent inviteSent:aRecipientUIDs trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)inviteResponse:(BOOL)anApplicationInstalled trackingId:(NSString*)anUniqueTrackingTag optionalParams:(ASObject*)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent inviteResponse:anApplicationInstalled trackingId:anUniqueTrackingTag optionalParams:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)inviteResponse:(BOOL)anApplicationInstalled trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary*)anOptionalParams  {
+  [Kontagent inviteResponse:anApplicationInstalled trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)pageRequest:(ASObject *)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent pageRequest:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)pageRequest:(NSDictionary *)anOptionalParams {
+  [Kontagent pageRequest:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)revenueTracking:(NSInteger)aValue optionalParams:(ASObject *)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent revenueTracking:aValue optionalParams:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)revenueTracking:(NSInteger)aValue optionalParams:(NSDictionary *)anOptionalParams {
+  [Kontagent revenueTracking:aValue optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)streamPost:(NSString*)aType trackingId:(NSString*)anUniqueTrackingTag optionalParams:(ASObject *)anOptionalParams  optionalParamsKeys:(NSArray *)keys {
-  [Kontagent streamPost:aType trackingId:anUniqueTrackingTag optionalParams:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)streamPost:(NSString*)aType trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary *)anOptionalParams {
+  [Kontagent streamPost:aType trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
 - (void)streamPostResponse:(BOOL)anApplicationInstalled type:(NSString*)aType 
-                trackingId:(NSString*)anUniqueTrackingTag optionalParams:(ASObject *)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent streamPostResponse:anApplicationInstalled type:aType trackingId:anUniqueTrackingTag optionalParams:[anOptionalParams ktParamMapWithKeys:keys]];
+                trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary *)anOptionalParams {
+  [Kontagent streamPostResponse:anApplicationInstalled type:aType trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)undirectedCommunicationClick:(BOOL)anApplicationInstalled type:(NSString*)aType optionalParams:(ASObject *)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent undirectedCommunicationClick:anApplicationInstalled type:aType optionalParams:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)undirectedCommunicationClick:(BOOL)anApplicationInstalled type:(NSString*)aType optionalParams:(NSDictionary *)anOptionalParams {
+  [Kontagent undirectedCommunicationClick:anApplicationInstalled type:aType optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)undirectedCommunicationClick:(BOOL)anApplicationInstalled type:(NSString*)aType trackingTag:(NSString*)aTrackingTag optionalParams:(ASObject*)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent undirectedCommunicationClick:anApplicationInstalled type:aType trackingTag:aTrackingTag optionalParams:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)undirectedCommunicationClick:(BOOL)anApplicationInstalled type:(NSString*)aType trackingTag:(NSString*)aTrackingTag optionalParams:(NSDictionary*)anOptionalParams {
+  [Kontagent undirectedCommunicationClick:anApplicationInstalled type:aType trackingTag:aTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)emailSent:(NSString*)aRecipientUIDs trackingId:(NSString*)anUniqueTrackingTag optionalParams:(ASObject *)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent emailSent:aRecipientUIDs trackingId:anUniqueTrackingTag optionalParams:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)emailSent:(NSString*)aRecipientUIDs trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary *)anOptionalParams {
+  [Kontagent emailSent:aRecipientUIDs trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)emailResponse:(BOOL)anApplicationInstalled trackingId:(NSString*)anUniqueTrackingTag optionalParams:(ASObject *)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent emailResponse:anApplicationInstalled trackingId:anUniqueTrackingTag optionalParams:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)emailResponse:(BOOL)anApplicationInstalled trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary *)anOptionalParams  {
+  [Kontagent emailResponse:anApplicationInstalled trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)userInformation:(ASObject *)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent userInformation:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)userInformation:(NSDictionary *)anOptionalParams {
+  [Kontagent userInformation:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
-- (void)sendDeviceInformation:(ASObject *)anOptionalParams optionalParamsKeys:(NSArray *)keys {
-  [Kontagent sendDeviceInformation:[anOptionalParams ktParamMapWithKeys:keys]];
+- (void)sendDeviceInformation:(NSDictionary *)anOptionalParams {
+  [Kontagent sendDeviceInformation:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
 }
 
 - (NSString*)generateUniqueTrackingTag {
@@ -163,18 +171,19 @@ shouldSendApplicationAddedAutomatically:YES];
 }
 
 - (NSString*)senderId {
-  NSBundle *bundle = [NSBundle mainBundle];
-  NSString *apiKey = [bundle objectForInfoDictionaryKey:@"KTAPIKey"];
   return [Kontagent getSenderId:apiKey];
 }
 
 @end
 
-@implementation ASObject (KTAdditions)
+@implementation KTParamMap (NLAdditions)
 
-- (KTParamMap *)ktParamMapWithKeys:(NSArray *)keys {
++ (KTParamMap *)ktParamMapFromDictionary:(NSDictionary *)dict {
   KTParamMap *rv = [KTParamMap new];
-  rv.parameters = [self dictionaryWithProperties:keys, nil];
+  for (NSString *key in dict) {
+    id obj = [dict objectForKey:key];
+    [rv.parameters setObject:[obj description] forKey:key];
+  }
   return [rv autorelease];
 }
 

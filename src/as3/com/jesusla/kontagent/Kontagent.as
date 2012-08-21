@@ -46,12 +46,12 @@ package com.jesusla.kontagent {
       return true;
     }
 
-    public static function init(apiKey:String, userId:Object, useTestServer:Boolean = false):void {
+    public static function init(apiKey:String, userId:Object = null, useTestServer:Boolean = false):void {
       _userId = Number(userId);
       if (!_isSupported)
         ktApi = new KontagentApi(apiKey);
       else
-        context.call("initialize", apiKey, _userId ? String(_userId) : null, useTestServer);
+        context.call("initialize", apiKey, userId ? String(userId) : null, useTestServer);
     }
 
     public static function get libraryVersion():String {

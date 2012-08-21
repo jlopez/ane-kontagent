@@ -19,7 +19,7 @@
       }
 
       private function applicationCompleteHandler():void {
-        Kontagent.init('52765fc5331c4efc82b92e31e39d0c7e', 49152, true);
+        Kontagent.init('52765fc5331c4efc82b92e31e39d0c7e');
         log(Kontagent.libraryVersion);
         logDebug();
       }

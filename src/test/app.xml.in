@@ -30,8 +30,8 @@
         <key>UIPrerenderedIcon</key><true/>
         <key>ANEDebug</key><true/>
         <key>KTDebug</key><true/>
-        <!--key>KTAPIKey</key><string>@KONTAGENT_API_KEY@</string>
-        <key>KTMode</key><string>@KONTAGENT_MODE@</string-->
+        <key>KTAPIKey</key><string>@KONTAGENT_API_KEY@</string>
+        <key>KTMode</key><string>@KONTAGENT_MODE@</string>
       ]]>
     </InfoAdditions>
     <requestedDisplayResolution>high</requestedDisplayResolution>

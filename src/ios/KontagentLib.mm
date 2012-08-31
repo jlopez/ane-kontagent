@@ -7,6 +7,7 @@
 //
 #import "Kontagent.h"
 #import "NativeLibrary.h"
+#import <CommonCrypto/CommonDigest.h>
 
 @interface KontagentLib : NativeLibrary {
 @private
@@ -54,6 +55,24 @@ FN_END
   [super dealloc];
 }
 
+static NSString *md5_hash(NSString *s) {
+  // Create pointer to the string as UTF8
+  const char *ptr = [s UTF8String];
+
+  // Create byte array of unsigned chars
+  unsigned char md5Buffer[CC_MD5_DIGEST_LENGTH];
+
+  // Create 16 byte MD5 hash value, store in buffer
+  CC_MD5(ptr, strlen(ptr), md5Buffer);
+
+  // Convert MD5 value in the buffer to NSString of hex values
+  NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+  for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
+    [output appendFormat:@"%02x",md5Buffer[i]];
+
+  return output;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   NSBundle *bundle = [NSBundle mainBundle];
   apiKey = [[bundle objectForInfoDictionaryKey:@"KTAPIKey"] copy];
@@ -63,7 +82,8 @@ FN_END
     [Kontagent startSession:apiKey
                    senderId:nil
                        mode:isTest ? kKontagentSDKMode_TEST : kKontagentSDKMode_PRODUCTION
-shouldSendApplicationAddedAutomatically:YES];
+shouldSendApplicationAddedAutomatically:YES
+     customID:md5_hash([[UIDevice currentDevice] uniqueIdentifier])];
   }
   if ([[bundle objectForInfoDictionaryKey:@"KTDebug"] boolValue])
     [Kontagent enableDebug];

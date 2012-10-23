@@ -122,19 +122,19 @@ shouldSendApplicationAddedAutomatically:YES
 }
 
 - (void)goalCount:(NSInteger)aGoalCountId value:(NSInteger)aValue {
-  [Kontagent goalCount:aGoalCountId value:aValue];
+  ANELog(@"%s: Unimplemented", __PRETTY_FUNCTION__);
 }
 
 - (void)inviteSent:(NSString*)aRecipientUIDs trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary*)anOptionalParams {
-  [Kontagent inviteSent:aRecipientUIDs trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
+  ANELog(@"%s: Unimplemented", __PRETTY_FUNCTION__);
 }
 
 - (void)inviteResponse:(BOOL)anApplicationInstalled trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary*)anOptionalParams  {
-  [Kontagent inviteResponse:anApplicationInstalled trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
+  ANELog(@"%s: Unimplemented", __PRETTY_FUNCTION__);
 }
 
 - (void)pageRequest:(NSDictionary *)anOptionalParams {
-  [Kontagent pageRequest:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
+  ANELog(@"%s: Unimplemented", __PRETTY_FUNCTION__);
 }
 
 - (void)revenueTracking:(NSInteger)aValue optionalParams:(NSDictionary *)anOptionalParams {
@@ -142,12 +142,12 @@ shouldSendApplicationAddedAutomatically:YES
 }
 
 - (void)streamPost:(NSString*)aType trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary *)anOptionalParams {
-  [Kontagent streamPost:aType trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
+  ANELog(@"%s: Unimplemented", __PRETTY_FUNCTION__);
 }
 
-- (void)streamPostResponse:(BOOL)anApplicationInstalled type:(NSString*)aType 
+- (void)streamPostResponse:(BOOL)anApplicationInstalled type:(NSString*)aType
                 trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary *)anOptionalParams {
-  [Kontagent streamPostResponse:anApplicationInstalled type:aType trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
+  ANELog(@"%s: Unimplemented", __PRETTY_FUNCTION__);
 }
 
 - (void)undirectedCommunicationClick:(BOOL)anApplicationInstalled type:(NSString*)aType optionalParams:(NSDictionary *)anOptionalParams {
@@ -159,15 +159,15 @@ shouldSendApplicationAddedAutomatically:YES
 }
 
 - (void)emailSent:(NSString*)aRecipientUIDs trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary *)anOptionalParams {
-  [Kontagent emailSent:aRecipientUIDs trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
+  ANELog(@"%s: Unimplemented", __PRETTY_FUNCTION__);
 }
 
 - (void)emailResponse:(BOOL)anApplicationInstalled trackingId:(NSString*)anUniqueTrackingTag optionalParams:(NSDictionary *)anOptionalParams  {
-  [Kontagent emailResponse:anApplicationInstalled trackingId:anUniqueTrackingTag optionalParams:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
+  ANELog(@"%s: Unimplemented", __PRETTY_FUNCTION__);
 }
 
 - (void)userInformation:(NSDictionary *)anOptionalParams {
-  [Kontagent userInformation:[KTParamMap ktParamMapFromDictionary:anOptionalParams]];
+  ANELog(@"%s: Unimplemented", __PRETTY_FUNCTION__);
 }
 
 - (void)sendDeviceInformation:(NSDictionary *)anOptionalParams {

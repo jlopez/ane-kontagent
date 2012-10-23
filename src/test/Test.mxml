@@ -54,10 +54,7 @@
       }
 
       private function logDebug():void {
-        if (Kontagent.debugEnabled)
-          log("Debug: off");
-        else
-          log("Debug: on");
+        log("Debug: " + Kontagent.debugEnabled);
       }
     ]]></fx:Script>
 

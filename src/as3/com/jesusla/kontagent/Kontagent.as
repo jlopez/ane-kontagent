@@ -24,7 +24,6 @@ package com.jesusla.kontagent {
     //
     //---------------------------------------------------------------------
     private static var context:ExtensionContext;
-    private static var _isSupported:Boolean;
     private static var _instance:Kontagent;
     private static var ktApi:KontagentApi;
     private static var _userId:Number;
@@ -48,21 +47,21 @@ package com.jesusla.kontagent {
 
     public static function init(apiKey:String, userId:Object = null, useTestServer:Boolean = false):void {
       _userId = Number(userId);
-      if (!_isSupported)
+      if (context == null)
         ktApi = new KontagentApi(apiKey);
       else
         context.call("initialize", apiKey, userId ? String(userId) : null, useTestServer);
     }
 
     public static function get libraryVersion():String {
-      if (!_isSupported)
+      if (context == null)
         return "as3";
       return context.call("libraryVersion") as String;
     }
 
     public static function trackEvent(eventName:String, optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
+      if (context != null) {
         optionalParams = formatParams(optionalParams);
         context.call("trackEvent", eventName, optionalParams);
       }
@@ -72,7 +71,7 @@ package com.jesusla.kontagent {
 
     public static function trackApplicationAdded(optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
+      if (context != null) {
         optionalParams = formatParams(optionalParams);
         context.call("trackApplicationAdded", optionalParams);
       }
@@ -82,50 +81,31 @@ package com.jesusla.kontagent {
 
     public static function trackGoalCount(optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        for (var ix:int = 1; ix <= 4; ++ix) {
-          var key:String = "goalCount" + ix;
-          if (key in optionalParams)
-            context.call("trackGoalCount", ix, int(optionalParams[key]));
-        }
-      }
-      else
+      if (!context)
         ktApi.trackGoalCount(_userId, optionalParams);
     }
 
     public static function trackInviteSent(recipientUserIds:String, uniqueTrackingTag:String, optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        optionalParams = formatParams(optionalParams);
-        context.call("trackInviteSent", recipientUserIds, uniqueTrackingTag, optionalParams);
-      }
-      else
+      if (!context)
         ktApi.trackInviteSent(_userId, recipientUserIds, uniqueTrackingTag, optionalParams);
     }
 
     public static function trackInviteResponse(uniqueTrackingTag:String, optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        optionalParams = formatParams(optionalParams);
-        context.call("trackInviteResponse", _installed, uniqueTrackingTag, optionalParams);
-      }
-      else
+      if (!context)
         ktApi.trackInviteResponse(uniqueTrackingTag, optionalParams);
     }
 
     public static function trackPageRequest(optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        optionalParams = formatParams(optionalParams);
-        context.call("trackPageRequest", optionalParams);
-      }
-      else
+      if (!context)
         ktApi.trackPageRequest(_userId, optionalParams);
     }
 
     public static function trackRevenue(value:int, optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
+      if (context) {
         optionalParams = formatParams(optionalParams);
         context.call("trackRevenue", value, optionalParams);
       }
@@ -135,33 +115,21 @@ package com.jesusla.kontagent {
 
     public static function trackStreamPost(uniqueTrackingTag:String, type:String, optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        optionalParams = formatParams(optionalParams);
-        context.call("trackStreamPost", type, uniqueTrackingTag, optionalParams);
-      }
-      else
+      if (!context)
         ktApi.trackStreamPost(_userId, uniqueTrackingTag, type, optionalParams);
     }
 
     public static function trackStreamPostResponse(uniqueTrackingTag:String, type:String, optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        optionalParams = formatParams(optionalParams);
-        context.call("trackStreamPostResponse", _installed, type, uniqueTrackingTag, optionalParams);
-      }
-      else
+      if (!context)
         ktApi.trackStreamPostResponse(uniqueTrackingTag, type, optionalParams);
     }
 
     public static function trackThirdPartyCommClick(type:String, optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        var tag:String = optionalParams["shortUniqueTrackingTag"];
+      if (context) {
         optionalParams = formatParams(optionalParams);
-        if (tag)
-          context.call("trackThirdPartyCommClickTag", _installed, type, tag, optionalParams);
-        else
-          context.call("trackThirdPartyCommClick", _installed, type, optionalParams);
+        context.call("trackThirdPartyCommClick", _installed, type, optionalParams);
       }
       else
         ktApi.trackThirdPartyCommClick(type, optionalParams);
@@ -169,36 +137,24 @@ package com.jesusla.kontagent {
 
     public static function trackNotificationEmailSent(recipientUserIds:String, uniqueTrackingTag:String, optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        optionalParams = formatParams(optionalParams);
-        context.call("trackNotificationEmailSent", recipientUserIds, uniqueTrackingTag, optionalParams);
-      }
-      else
+      if (!context)
         ktApi.trackNotificationEmailSent(_userId, recipientUserIds, uniqueTrackingTag, optionalParams);
     }
 
     public static function trackNotificationEmailResponse(uniqueTrackingTag:String, optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        optionalParams = formatParams(optionalParams);
-        context.call("trackNotificationEmailResponse", _installed, uniqueTrackingTag, optionalParams);
-      }
-      else
+      if (!context)
         ktApi.trackNotificationEmailResponse(uniqueTrackingTag, optionalParams);
     }
 
     public static function trackUserInformation(optionalParams:Object = null):void {
       ensureInitialized();
-      if (_isSupported) {
-        optionalParams = formatParams(optionalParams);
-        context.call("trackUserInformation", optionalParams);
-      }
-      else
+      if (!context)
         ktApi.trackUserInformation(_userId, optionalParams);
     }
 
     public static function sendDeviceInformation(optionalParams:Object = null):void {
-      if (!_isSupported)
+      if (!context)
         return
       optionalParams = formatParams(optionalParams);
       context.call("sendDeviceInformation", optionalParams);
@@ -206,7 +162,7 @@ package com.jesusla.kontagent {
 
     public static function genUniqueTrackingTag():String {
       ensureInitialized();
-      if (_isSupported)
+      if (context)
         return context.call("genUniqueTrackingTag") as String;
       else
         return ktApi.genUniqueTrackingTag();
@@ -218,21 +174,21 @@ package com.jesusla.kontagent {
     }
 
     public static function enableDebug():void {
-      if (_isSupported)
+      if (context)
         context.call("enableDebug");
     }
 
     public static function disableDebug():void {
-      if (_isSupported)
+      if (context)
         context.call("disableDebug");
     }
 
     public static function get debugEnabled():Boolean {
-      return _isSupported && context.call("debugEnabled");
+      return context != null && context.call("debugEnabled");
     }
 
     public static function get userId():String {
-      if (_isSupported)
+      if (context != null)
         return context.call("senderId") as String;
       return String(_userId);
     }
@@ -246,6 +202,17 @@ package com.jesusla.kontagent {
       for (var key:String in obj)
         keys.push(key);
       return keys;
+    }
+
+    private static var _objectPool:Object = {};
+    private static var _objectPoolId:int = 0;
+    public function __retainObject(obj:Object):int {
+      _objectPool[++_objectPoolId] = obj;
+      return _objectPoolId;
+    }
+
+    public function __getObject(id:int):Object {
+      return _objectPool[id];
     }
 
     //---------------------------------------------------------------------
@@ -296,7 +263,7 @@ package com.jesusla.kontagent {
     }
 
     private static function ensureInitialized():void {
-      if (!_isSupported && ktApi == null)
+      if (context == null && ktApi == null)
         throw new Error("Kontagent not initialized");
     }
 
@@ -318,17 +285,22 @@ package com.jesusla.kontagent {
     private static function context_statusEventHandler(event:StatusEvent):void {
       if (event.level == "TICKET")
         context.call("claimTicket", event.code);
+      else if (event.level == "RELEASE")
+        delete _objectPool[int(event.code)];
     }
 
     {
       new Kontagent();
-      context = ExtensionContext.createExtensionContext(EXTENSION_ID, "KontagentLib");
+      context = ExtensionContext.createExtensionContext(EXTENSION_ID,
+          EXTENSION_ID + ".KontagentLib");
       if (context) {
-        _isSupported = context.actionScriptData;
-        context.addEventListener(StatusEvent.STATUS, context_statusEventHandler);
-        if (_isSupported)
+        try {
+          context.addEventListener(StatusEvent.STATUS, context_statusEventHandler);
           context.call("setActionScriptThis", _instance);
-        _installed = isFirstRun();
+          _installed = isFirstRun();
+        } catch (e:ArgumentError) {
+          context = null;
+        }
       }
     }
   }

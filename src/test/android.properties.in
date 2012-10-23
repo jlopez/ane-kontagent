@@ -1,0 +1,4 @@
+ANEDebug=true
+KTDebug=true
+KTAPIKey=@KONTAGENT_API_KEY@
+KTMode=@KONTAGENT_MODE@

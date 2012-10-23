@@ -23,6 +23,10 @@ public class KontagentLib extends Context {
     registerFunction("disableDebug");
     registerFunction("debugEnabled");
     registerFunction("senderId");
+
+    registerFunction("resumeSession");
+    registerFunction("pauseSession");
+    registerFunction("stopSession");
   }
 
   @Override
@@ -42,6 +46,18 @@ public class KontagentLib extends Context {
   @Override
   public void dispose() {
     super.dispose();
+    Kontagent.stopSession();
+  }
+
+  public void resumeSession() {
+    Kontagent.resumeSession();
+  }
+
+  public void pauseSession() {
+    Kontagent.pauseSession();
+  }
+
+  public void stopSession() {
     Kontagent.stopSession();
   }
 

@@ -1,5 +1,8 @@
 package com.jesusla.kontagent {
   import flash.data.EncryptedLocalStore;
+  import flash.desktop.NativeApplication;
+  import flash.events.Event;
+  import flash.events.InvokeEvent;
   import flash.events.StatusEvent;
   import flash.external.ExtensionContext;
   import flash.utils.ByteArray;
@@ -38,6 +41,18 @@ package com.jesusla.kontagent {
       if (_instance)
         throw new Error("Singleton");
       _instance = this;
+    }
+
+    private function setup():void {
+      var nativeApplication:NativeApplication = NativeApplication.nativeApplication;
+      nativeApplication.addEventListener(Event.ACTIVATE, onActivate);
+      nativeApplication.addEventListener(Event.DEACTIVATE, onDeactivate);
+      nativeApplication.addEventListener(Event.SUSPEND, onDeactivate);
+      nativeApplication.addEventListener(Event.EXITING, onTerminate);
+
+      function onActivate(event:Event):void { context.call("resumeSession"); }
+      function onDeactivate(event:Event):void { context.call("pauseSession"); }
+      function onTerminate(event:Event):void { context.call("stopSession"); }
     }
 
     public static function get isSupported():Boolean {
@@ -298,6 +313,7 @@ package com.jesusla.kontagent {
           context.addEventListener(StatusEvent.STATUS, context_statusEventHandler);
           context.call("setActionScriptThis", _instance);
           _installed = isFirstRun();
+          _instance.setup();
         } catch (e:ArgumentError) {
           context = null;
         }

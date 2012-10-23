@@ -48,6 +48,10 @@ FN_BEGIN(KontagentLib)
   FN(disableDebug, disableDebug)
   FN(debugEnabled, debugEnabled)
   FN(senderId, senderId)
+
+  FN(resumeSession, resumeSession)
+  FN(pauseSession, pauseSession)
+  FN(stopSession, stopSession)
 FN_END
 
 - (void)dealloc {
@@ -108,6 +112,10 @@ shouldSendApplicationAddedAutomatically:YES
   apiKey = [apiKey_ copy];
   [Kontagent startSession:apiKey senderId:userId mode:mode shouldSendApplicationAddedAutomatically:NO];
 }
+
+- (void)resumeSession {}
+- (void)pauseSession {}
+- (void)stopSession {}
 
 - (NSString *)libraryVersion {
   return [Kontagent libraryVersion];

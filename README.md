@@ -3,7 +3,15 @@ Kontagent ANE
 
 Usage
 -----
-Set KTAPIKey and KTMode (production/test) in Info.plist.
+Set KTAPIKey and KTMode (production/test) in Info.plist/AndroidManifest.xml.
+
+        <key>KTAPIKey</key><string>@KONTAGENT_API_KEY@</string>
+        <key>KTMode</key><string>@KONTAGENT_MODE@</string>
+        <key>KTDebug</key><false/>
+
+        <meta-data android:name="KTAPIKey" android:value="@KONTAGENT_API_KEY@"/>
+        <meta-data android:name="KTMode" android:value="@KONTAGENT_MODE@"/>
+        <meta-data android:name="KTDebug" android:value="false"/>
 
 Call API methods on the AS3 Kontagent class:
 

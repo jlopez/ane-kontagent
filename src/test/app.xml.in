@@ -46,6 +46,10 @@
         <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
         <uses-permission android:name="com.android.vending.INSTALL_REFERRER"/>
         <application android:enabled="true" @ANDROID_DEBUGGABLE@>
+          <meta-data android:name="ANEDebug" android:value="true"/>
+          <meta-data android:name="KTDebug" android:value="true"/>
+          <meta-data android:name="KTAPIKey" android:value="@KONTAGENT_API_KEY@"/>
+          <meta-data android:name="KTMode" android:value="@KONTAGENT_MODE@"/>
           <activity android:name="com.jesusla.ane.CustomActivity"/>
         </application>
       </manifest>

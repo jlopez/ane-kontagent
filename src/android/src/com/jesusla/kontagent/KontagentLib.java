@@ -1,6 +1,9 @@
 package com.jesusla.kontagent;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import android.provider.Settings.Secure;
 
 import com.jesusla.ane.Context;
 import com.jesusla.ane.Extension;
@@ -39,7 +42,12 @@ public class KontagentLib extends Context {
       boolean isTest = getBooleanProperty("KTTestMode");
       String mode = isTest ? Kontagent.TEST_MODE : Kontagent.PRODUCTION_MODE;
       Extension.debug("Auto-initializing Kontagent(%s,%s)", apiKey, mode);
-      Kontagent.startSession(apiKey, getActivity(), mode, null, true);
+      Kontagent.startSession(apiKey, getActivity(), mode, null, false);
+
+      String androidId = Secure.getString(getActivity().getContentResolver(), Secure.ANDROID_ID);
+      Map<String, String> params = new HashMap<String, String>();
+      params.put("su", androidId);
+      Kontagent.applicationAdded(params);
     }
   }
 

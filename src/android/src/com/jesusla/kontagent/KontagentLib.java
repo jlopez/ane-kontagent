@@ -11,6 +11,8 @@ import com.kontagent.Kontagent;
 
 public class KontagentLib extends Context {
   private String apiKey;
+  private String mode;
+  private String userId;
   private boolean isDebugEnabled;
 
   public KontagentLib() {
@@ -40,9 +42,9 @@ public class KontagentLib extends Context {
     apiKey = getProperty("KTAPIKey");
     if (apiKey != null) {
       boolean isTest = getBooleanProperty("KTTestMode");
-      String mode = isTest ? Kontagent.TEST_MODE : Kontagent.PRODUCTION_MODE;
+      mode = isTest ? Kontagent.TEST_MODE : Kontagent.PRODUCTION_MODE;
       Extension.debug("Auto-initializing Kontagent(%s,%s)", apiKey, mode);
-      Kontagent.startSession(apiKey, getActivity(), mode, null, false);
+      Kontagent.startSession(apiKey, getActivity(), mode, userId, false);
 
       String androidId = Secure.getString(getActivity().getContentResolver(), Secure.ANDROID_ID);
       Map<String, String> params = new HashMap<String, String>();
@@ -58,11 +60,12 @@ public class KontagentLib extends Context {
   }
 
   public void resumeSession() {
-    Kontagent.resumeSession();
+    if (apiKey != null)
+      Kontagent.startSession(apiKey, getActivity(), mode, userId, false);
   }
 
   public void pauseSession() {
-    Kontagent.pauseSession();
+    Kontagent.stopSession();
   }
 
   public void stopSession() {
@@ -79,8 +82,9 @@ public class KontagentLib extends Context {
       Extension.warn("Kontagent: Session already initialized. Ignoring");
       return;
     }
-    String mode = isTest ? Kontagent.TEST_MODE : Kontagent.PRODUCTION_MODE;
     this.apiKey = apiKey;
+    this.mode = isTest ? Kontagent.TEST_MODE : Kontagent.PRODUCTION_MODE;
+    this.userId = userId;
     Kontagent.startSession(apiKey, getActivity(), mode, userId, false);
   }
 

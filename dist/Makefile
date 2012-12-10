@@ -4,6 +4,7 @@ NAME = Kontagent
 COMPANY = company
 VERSION = 1.0
 KONTAGENT_API_KEY = 52765fc5331c4efc82b92e31e39d0c7e
+KONTAGENT_TEST_MODE = true
 WIKI_GIT_URL = git@github.com:jlopez/ane-kontagent.wiki.git
 
 SRCDIR = $(ROOT)/src/test

@@ -31,7 +31,7 @@
         <key>ANEDebug</key><true/>
         <key>KTDebug</key><true/>
         <key>KTAPIKey</key><string>@KONTAGENT_API_KEY@</string>
-        <key>KTMode</key><string>@KONTAGENT_MODE@</string>
+        <key>KTTestMode</key><@KONTAGENT_TEST_MODE@/>
       ]]>
     </InfoAdditions>
     <requestedDisplayResolution>high</requestedDisplayResolution>
@@ -49,7 +49,7 @@
           <meta-data android:name="ANEDebug" android:value="true"/>
           <meta-data android:name="KTDebug" android:value="true"/>
           <meta-data android:name="KTAPIKey" android:value="@KONTAGENT_API_KEY@"/>
-          <meta-data android:name="KTMode" android:value="@KONTAGENT_MODE@"/>
+          <meta-data android:name="KTTestMode" android:value="@KONTAGENT_TEST_MODE@"/>
           <activity android:name="com.jesusla.ane.CustomActivity"/>
         </application>
       </manifest>

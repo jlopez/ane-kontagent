@@ -16,7 +16,7 @@ OTHER_RESOURCES =
 ################## ANE Config
 EXT_ID = com.jesusla.kontagent
 ANE_AS3DIR = ../src/as3 ../src/lib/kontagent/src
-ANE_IOS_LIB_SOURCES = $(call findcfiles,../src/ios) ../src/ios/kontagent/libKontagent.a ../src/ios/kontagent/libKontagent_UDID.a ../src/ios/kontagent/libKontagent_ODIN.a
+ANE_IOS_LIB_SOURCES = $(call findcfiles,../src/ios) ../src/ios/kontagent/libKontagent.a ../src/ios/kontagent/libKontagent_ODIN.a
 ANE_IOS_LIB_CFLAGS = -I../lib/ane/src/ios -I ../src/ios/kontagent
 
 NATIVE_LIBRARY_LIB = libNativeLibrary.a

@@ -86,8 +86,7 @@ static NSString *md5_hash(NSString *s) {
     [Kontagent startSession:apiKey
                    senderId:nil
                        mode:isTest ? kKontagentSDKMode_TEST : kKontagentSDKMode_PRODUCTION
-shouldSendApplicationAddedAutomatically:YES
-     customID:md5_hash([[UIDevice currentDevice] uniqueIdentifier])];
+shouldSendApplicationAddedAutomatically:YES];
   }
   if ([[bundle objectForInfoDictionaryKey:@"KTDebug"] boolValue])
     [Kontagent enableDebug];
